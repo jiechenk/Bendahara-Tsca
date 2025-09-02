@@ -1,699 +1,681 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Keuangan Bendahara - TROPIS SULAWESI CINTA ALAM</title>
-    <link rel="icon" type="image/png" href="https://i.imgur.com/xNCFonB.png">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-               background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-               min-height: 100vh; }
-        .header { background: linear-gradient(135deg, #059669 0%, #047857 100%);
-                  color: white; padding: 1.5rem;
-                  box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .header-content { display: flex; justify-content: center; align-items: center;
-                          position: relative; max-width: 1200px; margin: 0 auto; }
-        .header-center { text-align: center; flex: 1; }
-        .header-center h1 { display: flex; align-items: center; justify-content: center;
-                            margin: 0; font-size: 1.8rem; font-weight: bold; }
-        .header-center h1 img { height: 50px; margin-right: 10px; }
-        .header-center p { margin: 5px 0 0 0; font-size: 1rem; opacity: 0.9; }
-        .balance-display { position: absolute; right: 0; text-align: right; }
-        .balance-label { font-size: 0.9rem; opacity: 0.8; }
-        .balance-amount { font-size: 2rem; font-weight: bold; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-        .tabs { background: white; border-radius: 10px;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                margin-bottom: 2rem; overflow: hidden; }
-        .tab-buttons { display: flex; background: #f8f9fa; }
-        .tab-button { flex: 1; padding: 1rem; background: none; border: none; cursor: pointer;
-                      font-weight: 600; transition: all 0.3s ease; border-bottom: 3px solid transparent; }
-        .tab-button.active { background: white; border-bottom-color: #059669; color: #059669; }
-        .tab-content { padding: 2rem; min-height: 400px; }
-        .tab-panel { display: none; }
-        .tab-panel.active { display: block; }
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                      gap: 1.5rem; margin-bottom: 2rem; }
-        .card { background: white; padding: 1.5rem; border-radius: 10px;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.2s ease; }
-        .card:hover { transform: translateY(-2px); }
-        .card-header { display: flex; justify-content: space-between; align-items: center;
-                       margin-bottom: 1rem; }
-        .card-title { color: #6b7280; font-size: 0.9rem; }
-        .card-amount { font-size: 1.8rem; font-weight: bold; }
-        .card-amount.income { color: #059669; }
-        .card-amount.expense { color: #dc2626; }
-        .card-amount.balance.positive { color: #2563eb; }
-        .card-amount.balance.negative { color: #dc2626; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                     gap: 1rem; margin-bottom: 1.5rem; }
-        .form-group { display: flex; flex-direction: column; }
-        .form-label { margin-bottom: 0.5rem; font-weight: 600; color: #374151; }
-        .form-input { padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;
-                      font-size: 1rem; transition: border-color 0.2s ease; }
-        .form-input:focus { outline: none; border-color: #059669; }
-        .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 8px;
-               font-size: 1rem; font-weight: 600; cursor: pointer;
-               transition: all 0.2s ease; }
-        .btn-primary { background: #059669; color: white; }
-        .btn-primary:hover { background: #047857; }
-        .btn-danger { background: #dc2626; color: white;
-                      padding: 0.5rem 1rem; font-size: 0.9rem; }
-        .btn-danger:hover { background: #b91c1c; }
-        .table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        .table th, .table td { padding: 1rem; text-align: left; border-bottom: 1px solid #e5e7eb; }
-        .table th { background: #f8f9fa; font-weight: 600; color: #374151; }
-        .table tr:hover { background: #f8f9fa; }
-        .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px;
-                 font-size: 0.8rem; font-weight: 600; }
-        .badge-income { background: #d1fae5; color: #065f46; }
-        .badge-expense { background: #fee2e2; color: #991b1b; }
-        .amount-positive { color: #059669; }
-        .amount-negative { color: #dc2626; }
-        .filter-section { background: white; padding: 1rem; border-radius: 10px;
-                          box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 2rem; }
-        .category-report { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-        .category-section h4 { margin-bottom: 1rem; color: #374151; font-weight: 600; }
-        .category-item { display: flex; justify-content: space-between;
-                         padding: 0.75rem 0; border-bottom: 1px solid #e5e7eb; }
-        .summary-cards { display: grid; grid-template-columns: repeat(3, 1fr);
-                         gap: 1rem; margin-top: 2rem; }
-        .summary-card { padding: 1.5rem; border-radius: 10px; text-align: center; }
-        .summary-card.income { background: #d1fae5; }
-        .summary-card.expense { background: #fee2e2; }
-        .summary-card.balance { background: #dbeafe; }
-        @media (max-width: 768px) {
-            .header-content { flex-direction: column; text-align: center; }
-            .balance-display { position: static; margin-top: 1rem; text-align: center; }
-            .form-grid { grid-template-columns: 1fr; }
-            .category-report { grid-template-columns: 1fr; }
-            .summary-cards { grid-template-columns: 1fr; }
-            .table { font-size: 0.9rem; }
-        }
-        /* --- Tambahan khusus HP (max-width: 480px) --- */
-       @media (max-width: 480px) {
-       body { font-size: 14px; padding: 0.5rem; }
-       .header-center h1 { font-size: 1.2rem; }
-       .balance-amount { font-size: 1.5rem; }
-       .tab-button { font-size: 0.8rem; padding: 0.5rem; }
-       .card { padding: 1rem; }
-       .form-input, .btn { font-size: 0.9rem; padding: 0.5rem; }
-       .cards-grid, .summary-cards { grid-template-columns: 1fr; }
-      .table { display: block; overflow-x: auto; white-space: nowrap; }
-       }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Keuangan Bendahara — TROPIS SULAWESI CINTA ALAM</title>
+  <link rel="icon" type="image/png" href="https://i.imgur.com/xNCFonB.png" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      min-height: 100vh;
+      color: #111827;
+    }
 
-        .alert { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
-        .alert-success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
-        .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-        .hidden { display: none; }
-    </style>
+    /* ===== Login ===== */
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    .login-box {
+      background: white;
+      padding: 3rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+    }
+    .login-logo { width: 80px; height: 80px; margin: 0 auto 1.25rem; border-radius: 50%; }
+    .login-title { color: #059669; font-size: 1.8rem; font-weight: 800; margin-bottom: .25rem; }
+    .login-subtitle { color: #6b7280; margin-bottom: 1.75rem; font-size: .95rem; }
+    .login-form { display: flex; flex-direction: column; gap: 1.25rem; }
+    .login-input-group { text-align: left; }
+    .login-label { display:block; margin-bottom:.5rem; color:#374151; font-weight:600; font-size:.9rem; }
+    .login-input {
+      width: 100%; padding:.875rem 1rem; border:2px solid #e5e7eb; border-radius:10px; font-size:1rem; background:#f9fafb; transition:.2s;
+    }
+    .login-input:focus { outline:none; border-color:#059669; background:white; box-shadow:0 0 0 3px rgba(5,150,105,.1); }
+    .login-btn {
+      width: 100%; padding:.9rem; background:linear-gradient(135deg,#059669 0%,#047857 100%);
+      color:white; border:none; border-radius:10px; font-size:1rem; font-weight:700; cursor:pointer; transition:.2s; margin-top:.25rem;
+    }
+    .login-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(5,150,105,.25); }
+    .demo-credentials { background:#f0f9ff; padding:1rem; border-radius:10px; margin-top:1rem; font-size:.85rem; color:#1e40af; }
+
+    /* ===== App ===== */
+    .main-app { display: none; }
+    .header {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      color: white; padding: 1.25rem 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,.1);
+    }
+    .header-content { display:flex; justify-content:space-between; align-items:center; max-width:1200px; margin:0 auto; gap:1rem; }
+    .header-left { display:flex; align-items:center; gap:.75rem; }
+    .header-left h1 { display:flex; align-items:center; gap:.5rem; margin:0; font-size:1.6rem; font-weight:800; }
+    .header-left h1 img { height:48px; }
+    .header-left p { margin:.2rem 0 0; font-size:.95rem; opacity:.9; }
+    .header-right { display:flex; align-items:center; gap:1.25rem; }
+    .balance-display { text-align:right; }
+    .balance-label { font-size:.9rem; opacity:.85; }
+    .balance-amount { font-size:1.8rem; font-weight:800; }
+    .user-info { display:flex; align-items:center; gap:.75rem; }
+    .user-avatar { width:40px; height:40px; border-radius:50%; background:rgba(255,255,255,.22); display:flex; align-items:center; justify-content:center; font-weight:800; }
+    .logout-btn { background:rgba(255,255,255,.2); color:white; border:none; padding:.5rem 1rem; border-radius:8px; cursor:pointer; font-size:.9rem; }
+    .logout-btn:hover { background:rgba(255,255,255,.3); }
+
+    .container { max-width:1200px; margin:0 auto; padding:2rem 1.25rem; }
+    .filter-section { background:white; padding:1rem; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,.06); margin-bottom:1.25rem; }
+
+    .tabs { background:white; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,.1); overflow:hidden; }
+    .tab-buttons { display:flex; background:#f8f9fa; }
+    .tab-button { flex:1; padding:1rem; background:none; border:none; cursor:pointer; font-weight:700; transition:.2s; border-bottom:3px solid transparent; }
+    .tab-button.active { background:white; border-bottom-color:#059669; color:#059669; }
+    .tab-content { padding: 1.5rem; min-height: 420px; }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+
+    .cards-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; margin-bottom:1.25rem; }
+    .card { background:white; padding:1.25rem; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.06); transition:.15s; }
+    .card:hover { transform: translateY(-2px); }
+    .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.75rem; }
+    .card-title { color:#6b7280; font-size:.9rem; }
+    .card-amount { font-size:1.6rem; font-weight:800; }
+    .card-amount.income { color:#059669; }
+    .card-amount.expense { color:#dc2626; }
+    .card-amount.balance.positive { color:#2563eb; }
+    .card-amount.balance.negative { color:#dc2626; }
+
+    .form-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1rem; }
+    .form-group { display:flex; flex-direction:column; }
+    .form-label { margin-bottom:.5rem; font-weight:700; color:#374151; }
+    .form-input { padding:.75rem; border:2px solid #e5e7eb; border-radius:8px; font-size:1rem; }
+    .form-input:focus { outline:none; border-color:#059669; }
+    .btn { padding:.75rem 1.25rem; border:none; border-radius:8px; font-weight:800; cursor:pointer; transition:.15s; }
+    .btn-primary { background:#059669; color:white; }
+    .btn-primary:hover { background:#047857; }
+    .btn-danger { background:#dc2626; color:white; padding:.5rem 1rem; font-size:.9rem; }
+    .btn-danger:hover { background:#b91c1c; }
+
+    .table { width:100%; border-collapse: collapse; margin-top:.75rem; }
+    .table th, .table td { padding:1rem; text-align:left; border-bottom:1px solid #e5e7eb; }
+    .table th { background:#f8f9fa; font-weight:800; color:#374151; }
+    .table tr:hover { background:#f8f9fa; }
+    .badge { display:inline-block; padding:.25rem .75rem; border-radius:20px; font-size:.8rem; font-weight:800; }
+    .badge-income { background:#d1fae5; color:#065f46; }
+    .badge-expense { background:#fee2e2; color:#991b1b; }
+
+    .category-report { display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; }
+    .category-section h4 { margin-bottom:.75rem; color:#374151; font-weight:800; }
+    .category-item { display:flex; justify-content:space-between; padding:.6rem 0; border-bottom:1px solid #e5e7eb; }
+    .summary-cards { display:grid; grid-template-columns: repeat(3, 1fr); gap:1rem; margin-top:1rem; }
+    .summary-card { padding:1rem; border-radius:12px; text-align:center; }
+    .summary-card.income { background:#d1fae5; }
+    .summary-card.expense { background:#fee2e2; }
+    .summary-card.balance { background:#dbeafe; }
+
+    .alert { padding:1rem; border-radius:10px; margin:.75rem 0; }
+    .alert-success { background:#d1fae5; color:#065f46; border:1px solid #a7f3d0; }
+    .alert-error { background:#fee2e2; color:#991b1b; border:1px solid #fca5a5; }
+
+    @media (max-width: 768px) {
+      .header-content { flex-direction:column; text-align:center; }
+      .header-right { flex-direction:column; gap:1rem; margin-top:.75rem; }
+      .balance-display { text-align:center; }
+      .category-report { grid-template-columns:1fr; }
+      .summary-cards { grid-template-columns:1fr; }
+      .table { font-size:.92rem; }
+    }
+
+    /* Floating action buttons */
+    .fab-wrap { position: fixed; bottom: 20px; right: 20px; display:flex; flex-direction:column; gap:10px; }
+    .fab { width:60px; height:60px; border-radius:50%; color:white; border:none; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,.15); font-size:20px; }
+    .fab-export { background:#059669; }
+    .fab-print { background:#2563eb; }
+  </style>
 </head>
 <body>
-    <!-- Header -->
-    <div class="header">
-        <div class="header-content">
-            <div class="header-center">
-                <h1>
-                    <img src="https://i.imgur.com/xNCFonB.png" alt="Logo">
-                    TROPIS SULAWAWESI CINTA ALAM
-                </h1>
-                <p>Sistem Manajemen Data Keuangan</p>
-            </div>
-            <div class="balance-display">
-                <div class="balance-label">Saldo Kas</div>
-                <div class="balance-amount" id="currentBalance">Rp 0</div>
-            </div>
+  <!-- ===== Login Page ===== -->
+  <div id="loginPage" class="login-container">
+    <div class="login-box">
+      <img src="https://i.imgur.com/xNCFonB.png" alt="Logo" class="login-logo" />
+      <h1 class="login-title">Selamat Datang</h1>
+      <p class="login-subtitle">Sistem Manajemen Keuangan<br/>TROPIS SULAWESI CINTA ALAM</p>
+
+      <form class="login-form" onsubmit="handleLogin(event)">
+        <div class="login-input-group">
+          <label class="login-label">Username</label>
+          <input type="text" id="username" class="login-input" placeholder="Masukkan username" required />
         </div>
+        <div class="login-input-group">
+          <label class="login-label">Password</label>
+          <input type="password" id="password" class="login-input" placeholder="Masukkan password" required />
+        </div>
+        <button type="submit" class="login-btn">🔐 Masuk</button>
+      </form>
+
+      <div class="demo-credentials">
+        <strong>💡 Demo Login:</strong><br />
+        Username: <strong>bendahara</strong><br />
+        Password: <strong>admin123</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Main Application ===== -->
+  <div id="mainApp" class="main-app">
+    <div class="header">
+      <div class="header-content">
+        <div class="header-left">
+          <h1><img src="https://i.imgur.com/xNCFonB.png" alt="Logo" />TROPIS SULAWESI CINTA ALAM</h1>
+          <p>Sistem Manajemen Data Keuangan</p>
+        </div>
+        <div class="header-right">
+          <div class="balance-display">
+            <div class="balance-label">Saldo Kas</div>
+            <div class="balance-amount" id="currentBalance">Rp 0</div>
+          </div>
+          <div class="user-info">
+            <div class="user-avatar" id="userAvatar">B</div>
+            <div>
+              <div style="font-weight: 700; font-size: .95rem;" id="userName">Bendahara</div>
+              <div style="font-size:.8rem; opacity:.85;">Online</div>
+            </div>
+            <button class="logout-btn" onclick="handleLogout()">🚪 Keluar</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="container">
-        <!-- Filter -->
-        <div class="filter-section">
-            <label for="monthFilter" style="margin-right: 1rem; font-weight: 600;">📅 Filter Bulan:</label>
-            <select id="monthFilter" class="form-input" style="width: auto; display: inline-block;">
-                <option value="all">Semua Bulan</option>
-                <option value="2025-01">Januari 2025</option>
-                <option value="2025-02">Februari 2025</option>
-                <option value="2025-03">Maret 2025</option>
-                <option value="2025-04">April 2025</option>
-                <option value="2025-05">Mei 2025</option>
-                <option value="2025-06">Juni 2025</option>
-                <option value="2025-07">Juli 2025</option>
-                <option value="2025-08">Agustus 2025</option>
-                <option value="2025-09">September 2025</option>
-                <option value="2025-10">Oktober 2025</option>
-                <option value="2025-11">November 2025</option>
-                <option value="2025-12">Desember 2025</option>
-            </select>
-        </div>
+      <!-- Filter -->
+      <div class="filter-section">
+        <label for="monthFilter" style="margin-right: .75rem; font-weight: 800;">📅 Filter Bulan:</label>
+        <select id="monthFilter" class="form-input" style="width: auto; display: inline-block;">
+          <option value="all">Semua Bulan</option>
+          <option value="2025-01">Januari 2025</option>
+          <option value="2025-02">Februari 2025</option>
+          <option value="2025-03">Maret 2025</option>
+          <option value="2025-04">April 2025</option>
+          <option value="2025-05">Mei 2025</option>
+          <option value="2025-06">Juni 2025</option>
+          <option value="2025-07">Juli 2025</option>
+          <option value="2025-08">Agustus 2025</option>
+          <option value="2025-09">September 2025</option>
+          <option value="2025-10">Oktober 2025</option>
+          <option value="2025-11">November 2025</option>
+          <option value="2025-12">Desember 2025</option>
+        </select>
+      </div>
 
-        <!-- Tabs -->
-        <div class="tabs">
-            <div class="tab-buttons">
-                <button class="tab-button active" onclick="showTab('dashboard')">📊 Dashboard</button>
-                <button class="tab-button" onclick="showTab('transactions')">💰 Transaksi</button>
-                <button class="tab-button" onclick="showTab('reports')">📋 Laporan</button>
+      <!-- Tabs -->
+      <div class="tabs">
+        <div class="tab-buttons">
+          <button class="tab-button active" onclick="showTab('dashboard', event)">📊 Dashboard</button>
+          <button class="tab-button" onclick="showTab('transactions', event)">💰 Transaksi</button>
+          <button class="tab-button" onclick="showTab('reports', event)">📋 Laporan</button>
+        </div>
+        <div class="tab-content">
+          <!-- Dashboard -->
+          <div id="dashboard" class="tab-panel active">
+            <div class="cards-grid">
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">Total Pemasukan</div>
+                  <div>💚</div>
+                </div>
+                <div class="card-amount income" id="totalIncome">Rp 0</div>
+              </div>
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">Total Pengeluaran</div>
+                  <div>❤️</div>
+                </div>
+                <div class="card-amount expense" id="totalExpense">Rp 0</div>
+              </div>
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">Saldo</div>
+                  <div>💎</div>
+                </div>
+                <div class="card-amount balance" id="balanceAmount">Rp 0</div>
+              </div>
+            </div>
+            <div class="card">
+              <h3 style="margin-bottom: .75rem; color:#374151;">📈 Transaksi Terbaru</h3>
+              <div id="recentTransactions"><p style="color:#6b7280; text-align:center; padding:1.5rem;">Belum ada transaksi</p></div>
+            </div>
+          </div>
+
+          <!-- Transactions -->
+          <div id="transactions" class="tab-panel">
+            <div class="card">
+              <h3 style="margin-bottom: 1rem; color:#374151;">➕ Tambah Transaksi Baru</h3>
+              <div id="alertContainer"></div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label">Tanggal</label>
+                  <input type="date" id="transactionDate" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Tipe</label>
+                  <select id="transactionType" class="form-input">
+                    <option value="income">Pemasukan</option>
+                    <option value="expense">Pengeluaran</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Kategori</label>
+                  <select id="transactionCategory" class="form-input">
+                    <option value="">Pilih Kategori</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Jumlah (Rp)</label>
+                  <input type="number" id="transactionAmount" class="form-input" placeholder="0" />
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                  <label class="form-label">Keterangan</label>
+                  <input type="text" id="transactionDescription" class="form-input" placeholder="Deskripsi transaksi" />
+                </div>
+              </div>
+              <button class="btn btn-primary" onclick="addTransaction()">Tambah Transaksi</button>
             </div>
 
-            <div class="tab-content">
-                <!-- Dashboard Tab -->
-                <div id="dashboard" class="tab-panel active">
-                    <div class="cards-grid">
-                        <div class="card">
-                            <div class="card-header">
-                                <div class="card-title">Total Pemasukan</div>
-                                <div>💚</div>
-                            </div>
-                            <div class="card-amount income" id="totalIncome">Rp 0</div>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-header">
-                                <div class="card-title">Total Pengeluaran</div>
-                                <div>❤️</div>
-                            </div>
-                            <div class="card-amount expense" id="totalExpense">Rp 0</div>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-header">
-                                <div class="card-title">Saldo</div>
-                                <div>💎</div>
-                            </div>
-                            <div class="card-amount balance" id="balanceAmount">Rp 0</div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h3 style="margin-bottom: 1rem; color: #374151;">📈 Transaksi Terbaru</h3>
-                        <div id="recentTransactions">
-                            <p style="color: #6b7280; text-align: center; padding: 2rem;">Belum ada transaksi</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Transactions Tab -->
-                <div id="transactions" class="tab-panel">
-                    <div class="card">
-                        <h3 style="margin-bottom: 1.5rem; color: #374151;">➕ Tambah Transaksi Baru</h3>
-                        
-                        <div id="alertContainer"></div>
-
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label">Tanggal</label>
-                                <input type="date" id="transactionDate" class="form-input" value="">
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">Tipe</label>
-                                <select id="transactionType" class="form-input">
-                                    <option value="income">Pemasukan</option>
-                                    <option value="expense">Pengeluaran</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">Kategori</label>
-                                <select id="transactionCategory" class="form-input">
-                                    <option value="">Pilih Kategori</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">Jumlah (Rp)</label>
-                                <input type="number" id="transactionAmount" class="form-input" placeholder="0">
-                            </div>
-
-                            <div class="form-group" style="grid-column: span 2;">
-                                <label class="form-label">Keterangan</label>
-                                <input type="text" id="transactionDescription" class="form-input" placeholder="Deskripsi transaksi">
-                            </div>
-                        </div>
-
-                        <button class="btn btn-primary" onclick="addTransaction()">Tambah Transaksi</button>
-                    </div>
-
-                    <div class="card">
-                        <h3 style="margin-bottom: 1rem; color: #374151;">📋 Daftar Transaksi</h3>
-                        <div style="overflow-x: auto;">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Tanggal</th>
-                                        <th>Tipe</th>
-                                        <th>Kategori</th>
-                                        <th>Keterangan</th>
-                                        <th style="text-align: right;">Jumlah</th>
-                                        <th style="text-align: center;">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="transactionsList">
-                                    <tr>
-                                        <td colspan="6" style="text-align: center; color: #6b7280; padding: 2rem;">
-                                            Belum ada transaksi
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Reports Tab -->
-                <div id="reports" class="tab-panel">
-                    <div class="card">
-                        <h3 style="margin-bottom: 1.5rem; color: #374151;">📊 Laporan Keuangan</h3>
-                        
-                        <div class="category-report">
-                            <div class="category-section">
-                                <h4>💚 Pemasukan per Kategori</h4>
-                                <div id="incomeReport">
-                                    <p style="color: #6b7280; text-align: center; padding: 1rem;">Belum ada data</p>
-                                </div>
-                            </div>
-
-                            <div class="category-section">
-                                <h4>❤️ Pengeluaran per Kategori</h4>
-                                <div id="expenseReport">
-                                    <p style="color: #6b7280; text-align: center; padding: 1rem;">Belum ada data</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="summary-cards">
-                            <div class="summary-card income">
-                                <div style="font-size: 0.9rem; color: #065f46; margin-bottom: 0.5rem;">Total Pemasukan</div>
-                                <div style="font-size: 1.5rem; font-weight: bold; color: #065f46;" id="reportIncome">Rp 0</div>
-                            </div>
-                            <div class="summary-card expense">
-                                <div style="font-size: 0.9rem; color: #991b1b; margin-bottom: 0.5rem;">Total Pengeluaran</div>
-                                <div style="font-size: 1.5rem; font-weight: bold; color: #991b1b;" id="reportExpense">Rp 0</div>
-                            </div>
-                            <div class="summary-card balance">
-                                <div style="font-size: 0.9rem; color: #1e40af; margin-bottom: 0.5rem;">Saldo Akhir</div>
-                                <div style="font-size: 1.5rem; font-weight: bold;" id="reportBalance">Rp 0</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="card">
+              <h3 style="margin-bottom: .75rem; color:#374151;">📋 Daftar Transaksi</h3>
+              <div style="overflow-x:auto;">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Tanggal</th>
+                      <th>Tipe</th>
+                      <th>Kategori</th>
+                      <th>Keterangan</th>
+                      <th style="text-align:right;">Jumlah</th>
+                      <th style="text-align:center;">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="transactionsList">
+                    <tr>
+                      <td colspan="6" style="text-align:center; color:#6b7280; padding:1.25rem;">Belum ada transaksi</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
+          </div>
+
+          <!-- Reports -->
+          <div id="reports" class="tab-panel">
+            <div class="card">
+              <h3 style="margin-bottom: 1rem; color:#374151;">📊 Laporan Keuangan</h3>
+              <div class="category-report">
+                <div class="category-section">
+                  <h4>💚 Pemasukan per Kategori</h4>
+                  <div id="incomeReport"><p style="color:#6b7280; text-align:center; padding:1rem;">Belum ada data</p></div>
+                </div>
+                <div class="category-section">
+                  <h4>❤️ Pengeluaran per Kategori</h4>
+                  <div id="expenseReport"><p style="color:#6b7280; text-align:center; padding:1rem;">Belum ada data</p></div>
+                </div>
+              </div>
+              <div class="summary-cards">
+                <div class="summary-card income">
+                  <div style="font-size:.9rem; color:#065f46; margin-bottom:.25rem;">Total Pemasukan</div>
+                  <div style="font-size:1.35rem; font-weight:800; color:#065f46;" id="reportIncome">Rp 0</div>
+                </div>
+                <div class="summary-card expense">
+                  <div style="font-size:.9rem; color:#991b1b; margin-bottom:.25rem;">Total Pengeluaran</div>
+                  <div style="font-size:1.35rem; font-weight:800; color:#991b1b;" id="reportExpense">Rp 0</div>
+                </div>
+                <div class="summary-card balance">
+                  <div style="font-size:.9rem; color:#1e40af; margin-bottom:.25rem;">Saldo Akhir</div>
+                  <div style="font-size:1.35rem; font-weight:800;" id="reportBalance">Rp 0</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
+      </div>
     </div>
 
-    <script>
-        // Data dan Konfigurasi
-        let transactions = [
-            { id: 1, date: '2025-01-15', type: 'income', amount: 500000, description: 'Iuran anggota bulan Januari', category: 'Iuran' },
-            { id: 2, date: '2025-01-20', type: 'expense', amount: 150000, description: 'Pembelian tenda untuk kegiatan camping', category: 'Peralatan' },
-            { id: 3, date: '2025-02-01', type: 'income', amount: 300000, description: 'Donasi dari alumni', category: 'Donasi' },
-            { id: 4, date: '2025-02-10', type: 'expense', amount: 200000, description: 'Transportasi ke Gunung Bromo', category: 'Transportasi' },
-            { id: 5, date: '2025-02-15', type: 'expense', amount: 75000, description: 'Konsumsi kegiatan hiking', category: 'Konsumsi' }
-        ];
-
-        const categories = {
-            income: ['Iuran', 'Donasi', 'Sponsor', 'Penjualan Merchandise', 'Lainnya'],
-            expense: ['Peralatan', 'Transportasi', 'Konsumsi', 'Akomodasi', 'Dokumentasi', 'Administrasi', 'Lainnya']
-        };
-
-        // Inisialisasi
-        document.addEventListener('DOMContentLoaded', function() {
-            // Set tanggal hari ini
-            document.getElementById('transactionDate').value = new Date().toISOString().split('T')[0];
-            
-            // Update kategori saat tipe berubah
-            document.getElementById('transactionType').addEventListener('change', updateCategories);
-            
-            // Update tampilan saat filter berubah
-            document.getElementById('monthFilter').addEventListener('change', updateAllDisplays);
-            
-            // Inisialisasi tampilan
-            updateCategories();
-            updateAllDisplays();
-        });
-
-        // Fungsi Utilitas
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('id-ID', {
-                style: 'currency',
-                currency: 'IDR',
-                minimumFractionDigits: 0
-            }).format(amount);
-        }
-
-        function showAlert(message, type = 'success') {
-            const container = document.getElementById('alertContainer');
-            container.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
-            setTimeout(() => {
-                container.innerHTML = '';
-            }, 3000);
-        }
-
-        // Fungsi Tab
-        function showTab(tabName) {
-            // Sembunyikan semua panel
-            document.querySelectorAll('.tab-panel').forEach(panel => {
-                panel.classList.remove('active');
-            });
-            
-            // Nonaktifkan semua button
-            document.querySelectorAll('.tab-button').forEach(button => {
-                button.classList.remove('active');
-            });
-            
-            // Tampilkan panel yang dipilih
-            document.getElementById(tabName).classList.add('active');
-            
-            // Aktifkan button yang dipilih
-            event.target.classList.add('active');
-            
-            // Update tampilan jika perlu
-            if (tabName === 'reports') {
-                updateReports();
-            }
-        }
-
-        // Fungsi Kategori
-        function updateCategories() {
-            const type = document.getElementById('transactionType').value;
-            const categorySelect = document.getElementById('transactionCategory');
-            
-            categorySelect.innerHTML = '<option value="">Pilih Kategori</option>';
-            categories[type].forEach(category => {
-                categorySelect.innerHTML += `<option value="${category}">${category}</option>`;
-            });
-        }
-
-        // Fungsi Filter
-        function getFilteredTransactions() {
-            const filter = document.getElementById('monthFilter').value;
-            if (filter === 'all') {
-                return transactions;
-            }
-            return transactions.filter(t => t.date.startsWith(filter));
-        }
-
-        // Fungsi Perhitungan
-        function calculateSummary(transactionList = null) {
-            const data = transactionList || getFilteredTransactions();
-            const totalIncome = data.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-            const totalExpense = data.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-            const balance = totalIncome - totalExpense;
-            
-            return { totalIncome, totalExpense, balance };
-        }
-
-        // Fungsi Tambah Transaksi
-        function addTransaction() {
-            const date = document.getElementById('transactionDate').value;
-            const type = document.getElementById('transactionType').value;
-            const category = document.getElementById('transactionCategory').value;
-            const amount = parseInt(document.getElementById('transactionAmount').value);
-            const description = document.getElementById('transactionDescription').value.trim();
-
-            // Validasi
-            if (!date || !category || !amount || amount <= 0 || !description) {
-                showAlert('Mohon lengkapi semua field dengan benar!', 'error');
-                return;
-            }
-
-            // Tambah transaksi
-            const newTransaction = {
-                id: Date.now(),
-                date,
-                type,
-                category,
-                amount,
-                description
-            };
-
-            transactions.unshift(newTransaction);
-
-            // Reset form
-            document.getElementById('transactionAmount').value = '';
-            document.getElementById('transactionDescription').value = '';
-            document.getElementById('transactionCategory').value = '';
-
-            // Update tampilan
-            updateAllDisplays();
-            showAlert('Transaksi berhasil ditambahkan!');
-        }
-
-        // Fungsi Hapus Transaksi
-        function deleteTransaction(id) {
-            if (confirm('Apakah Anda yakin ingin menghapus transaksi ini?')) {
-                transactions = transactions.filter(t => t.id !== id);
-                updateAllDisplays();
-                showAlert('Transaksi berhasil dihapus!');
-            }
-        }
-
-        // Fungsi Update Dashboard
-        function updateDashboard() {
-            const summary = calculateSummary();
-            
-            // Update kartu summary
-            document.getElementById('totalIncome').textContent = formatCurrency(summary.totalIncome);
-            document.getElementById('totalExpense').textContent = formatCurrency(summary.totalExpense);
-            document.getElementById('balanceAmount').textContent = formatCurrency(summary.balance);
-            document.getElementById('currentBalance').textContent = formatCurrency(summary.balance);
-            
-            // Update warna saldo
-            const balanceEl = document.getElementById('balanceAmount');
-            const currentBalanceEl = document.getElementById('currentBalance');
-            
-            if (summary.balance >= 0) {
-                balanceEl.className = 'card-amount balance positive';
-            } else {
-                balanceEl.className = 'card-amount balance negative';
-            }
-
-            // Update transaksi terbaru
-            const recentTransactions = getFilteredTransactions().slice(0, 5);
-            const recentContainer = document.getElementById('recentTransactions');
-            
-            if (recentTransactions.length === 0) {
-                recentContainer.innerHTML = '<p style="color: #6b7280; text-align: center; padding: 2rem;">Belum ada transaksi</p>';
-            } else {
-                recentContainer.innerHTML = recentTransactions.map(t => `
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid #e5e7eb;">
-                        <div>
-                            <div style="font-weight: 600; margin-bottom: 0.25rem;">${t.description}</div>
-                            <div style="font-size: 0.875rem; color: #6b7280;">${t.category} • ${new Date(t.date).toLocaleDateString('id-ID')}</div>
-                        </div>
-                        <div class="amount-${t.type === 'income' ? 'positive' : 'negative'}" style="font-weight: 600;">
-                            ${t.type === 'income' ? '+' : '-'}${formatCurrency(t.amount)}
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-
-        // Fungsi Update Daftar Transaksi
-        function updateTransactionsList() {
-            const filteredTransactions = getFilteredTransactions();
-            const tbody = document.getElementById('transactionsList');
-            
-            if (filteredTransactions.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" style="text-align: center; color: #6b7280; padding: 2rem;">
-                            Belum ada transaksi
-                        </td>
-                    </tr>
-                `;
-            } else {
-                tbody.innerHTML = filteredTransactions.map(t => `
-                    <tr>
-                        <td>${new Date(t.date).toLocaleDateString('id-ID')}</td>
-                        <td>
-                            <span class="badge badge-${t.type}">
-                                ${t.type === 'income' ? 'Masuk' : 'Keluar'}
-                            </span>
-                        </td>
-                        <td>${t.category}</td>
-                        <td>${t.description}</td>
-                        <td style="text-align: right;" class="amount-${t.type === 'income' ? 'positive' : 'negative'}">
-                            ${t.type === 'income' ? '+' : '-'}${formatCurrency(t.amount)}
-                        </td>
-                        <td style="text-align: center;">
-                            <button class="btn-danger" onclick="deleteTransaction(${t.id})">Hapus</button>
-                        </td>
-                    </tr>
-                `).join('');
-            }
-        }
-
-        // Fungsi Update Laporan
-        function updateReports() {
-            const filteredTransactions = getFilteredTransactions();
-            const summary = calculateSummary(filteredTransactions);
-
-            // Update summary cards
-            document.getElementById('reportIncome').textContent = formatCurrency(summary.totalIncome);
-            document.getElementById('reportExpense').textContent = formatCurrency(summary.totalExpense);
-            document.getElementById('reportBalance').textContent = formatCurrency(summary.balance);
-            
-            // Update warna saldo di laporan
-            const reportBalanceEl = document.getElementById('reportBalance');
-            reportBalanceEl.style.color = summary.balance >= 0 ? '#1e40af' : '#991b1b';
-
-            // Update laporan per kategori - Pemasukan
-            const incomeByCategory = {};
-            filteredTransactions.filter(t => t.type === 'income').forEach(t => {
-                incomeByCategory[t.category] = (incomeByCategory[t.category] || 0) + t.amount;
-            });
-
-            const incomeReportEl = document.getElementById('incomeReport');
-            if (Object.keys(incomeByCategory).length === 0) {
-                incomeReportEl.innerHTML = '<p style="color: #6b7280; text-align: center; padding: 1rem;">Belum ada data</p>';
-            } else {
-                incomeReportEl.innerHTML = Object.entries(incomeByCategory)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([category, amount]) => `
-                        <div class="category-item">
-                            <span>${category}</span>
-                            <span style="font-weight: 600; color: #059669;">${formatCurrency(amount)}</span>
-                        </div>
-                    `).join('');
-            }
-
-            // Update laporan per kategori - Pengeluaran
-            const expenseByCategory = {};
-            filteredTransactions.filter(t => t.type === 'expense').forEach(t => {
-                expenseByCategory[t.category] = (expenseByCategory[t.category] || 0) + t.amount;
-            });
-
-            const expenseReportEl = document.getElementById('expenseReport');
-            if (Object.keys(expenseByCategory).length === 0) {
-                expenseReportEl.innerHTML = '<p style="color: #6b7280; text-align: center; padding: 1rem;">Belum ada data</p>';
-            } else {
-                expenseReportEl.innerHTML = Object.entries(expenseByCategory)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([category, amount]) => `
-                        <div class="category-item">
-                            <span>${category}</span>
-                            <span style="font-weight: 600; color: #dc2626;">${formatCurrency(amount)}</span>
-                        </div>
-                    `).join('');
-            }
-        }
-
-        // Fungsi Update Semua Tampilan
-        function updateAllDisplays() {
-            updateDashboard();
-            updateTransactionsList();
-            updateReports();
-        }
-
-        // Export Data (Bonus Feature)
-        function exportToCSV() {
-            const csvContent = "data:text/csv;charset=utf-8," 
-                + "Tanggal,Tipe,Kategori,Keterangan,Jumlah\n"
-                + transactions.map(t => 
-                    `${t.date},${t.type === 'income' ? 'Pemasukan' : 'Pengeluaran'},${t.category},"${t.description}",${t.amount}`
-                ).join("\n");
-            
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `keuangan_bendahara_${new Date().toISOString().split('T')[0]}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // Print Report (Bonus Feature)
-        function printReport() {
-            const printWindow = window.open('', '_blank');
-            const summary = calculateSummary();
-            const currentDate = new Date().toLocaleDateString('id-ID');
-            
-            printWindow.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Laporan Keuangan Bendahara</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; padding: 20px; }
-                        .header { text-align: center; margin-bottom: 30px; }
-                        .summary { display: flex; justify-content: space-around; margin: 20px 0; }
-                        .summary div { text-align: center; padding: 15px; border: 1px solid #ddd; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
-                        th { background-color: #f5f5f5; }
-                        .positive { color: #059669; }
-                        .negative { color: #dc2626; }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <h1>Laporan Keuangan Bendahara</h1>
-                        <h2>Organisasi Pencinta Alam</h2>
-                        <p>Tanggal Cetak: ${currentDate}</p>
-                    </div>
-                    
-                    <div class="summary">
-                        <div>
-                            <h3>Total Pemasukan</h3>
-                            <p class="positive">${formatCurrency(summary.totalIncome)}</p>
-                        </div>
-                        <div>
-                            <h3>Total Pengeluaran</h3>
-                            <p class="negative">${formatCurrency(summary.totalExpense)}</p>
-                        </div>
-                        <div>
-                            <h3>Saldo</h3>
-                            <p class="${summary.balance >= 0 ? 'positive' : 'negative'}">${formatCurrency(summary.balance)}</p>
-                        </div>
-                    </div>
-                    
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Tanggal</th>
-                                <th>Tipe</th>
-                                <th>Kategori</th>
-                                <th>Keterangan</th>
-                                <th>Jumlah</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${getFilteredTransactions().map(t => `
-                                <tr>
-                                    <td>${new Date(t.date).toLocaleDateString('id-ID')}</td>
-                                    <td>${t.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}</td>
-                                    <td>${t.category}</td>
-                                    <td>${t.description}</td>
-                                    <td class="${t.type === 'income' ? 'positive' : 'negative'}">
-                                        ${t.type === 'income' ? '+' : '-'}${formatCurrency(t.amount)}
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </body>
-                </html>
-            `);
-            
-            printWindow.document.close();
-            printWindow.print();
-        }
-    </script>
-
-    <!-- Floating Action Buttons (Bonus) -->
-    <div style="position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px;">
-        <button onclick="exportToCSV()" title="Export ke CSV" 
-                style="width: 60px; height: 60px; border-radius: 50%; background: #059669; color: white; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-size: 20px;">
-            📊
-        </button>
-        <button onclick="printReport()" title="Print Laporan"
-                style="width: 60px; height: 60px; border-radius: 50%; background: #2563eb; color: white; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-size: 20px;">
-            🖨️
-        </button>
+    <!-- FABs -->
+    <div class="fab-wrap">
+      <button class="fab fab-export" onclick="exportToCSV()" title="Export ke CSV">📊</button>
+      <button class="fab fab-print" onclick="printReport()" title="Print Laporan">🖨️</button>
     </div>
+  </div>
+
+  <script>
+    // ===== Authentication (Demo) =====
+    const users = {
+      'bendahara': { password: 'admin123', name: 'Bendahara', avatar: 'B', role: 'admin' },
+      'treasurer': { password: 'treasurer123', name: 'Treasurer', avatar: 'T', role: 'user' },
+      'admin': { password: 'admin2025', name: 'Administrator', avatar: 'A', role: 'admin' }
+    };
+
+    let currentUser = null;
+
+    function handleLogin(e) {
+	e.preventDefault();
+	const username = document.getElementById('username').value.trim();
+	const password = document.getElementById('password').value;
+
+
+	if (users[username] && users[username].password === password) {
+	currentUser = users[username];
+	sessionStorage.setItem('tsca_logged_in', '1');
+	sessionStorage.setItem('tsca_user', JSON.stringify(currentUser));
+
+
+	document.getElementById('userName').textContent = currentUser.name;
+	document.getElementById('userAvatar').textContent = currentUser.avatar;
+	document.getElementById('loginPage').style.display = 'none';
+	document.getElementById('mainApp').style.display = 'block';
+
+
+		initializeApp();
+		setTimeout(() => showAlert(`Selamat datang, ${currentUser.name}!`), 300);
+		} else {
+		showAlert('Username atau password salah!', 'error');
+		}
+	}
+
+    function handleLogout() {
+      if (!confirm('Apakah Anda yakin ingin keluar?')) return;
+      currentUser = null;
+      sessionStorage.removeItem('tsca_logged_in');
+      sessionStorage.removeItem('tsca_user');
+      // Reset form
+      document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
+      // Toggle tampilan
+      document.getElementById('mainApp').style.display = 'none';
+      document.getElementById('loginPage').style.display = 'flex';
+    }
+
+    function checkAuth() {
+      const logged = sessionStorage.getItem('tsca_logged_in') === '1';
+      if (logged && !currentUser) {
+        try { currentUser = JSON.parse(sessionStorage.getItem('tsca_user')); } catch(_){}
+        if (currentUser) {
+          document.getElementById('userName').textContent = currentUser.name;
+          document.getElementById('userAvatar').textContent = currentUser.avatar;
+          document.getElementById('loginPage').style.display = 'none';
+          document.getElementById('mainApp').style.display = 'block';
+          initializeApp();
+          return true;
+        }
+      }
+      document.getElementById('loginPage').style.display = 'flex';
+      document.getElementById('mainApp').style.display = 'none';
+      return false;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+    });
+
+    // ===== App Data =====
+    let transactions = [];
+	
+	 function loadTransactions() { // 🔥 fungsi baru
+	const saved = localStorage.getItem('tsca_transactions');
+	if (saved) {
+	try { transactions = JSON.parse(saved); } catch(_) { transactions = []; }
+	} else {
+	// contoh data awal
+	transactions = [
+	{ id: 1, date: '2025-01-15', type: 'income', amount: 500000, description: 'Iuran anggota bulan Januari', category: 'Iuran' },
+	{ id: 2, date: '2025-01-20', type: 'expense', amount: 150000, description: 'Pembelian tenda untuk kegiatan camping', category: 'Peralatan' },
+	{ id: 3, date: '2025-02-01', type: 'income', amount: 300000, description: 'Donasi dari alumni', category: 'Donasi' },
+	{ id: 4, date: '2025-02-10', type: 'expense', amount: 200000, description: 'Transportasi ke Gunung Bromo', category: 'Transportasi' },
+	{ id: 5, date: '2025-02-15', type: 'expense', amount: 75000, description: 'Konsumsi kegiatan hiking', category: 'Konsumsi' }
+	];
+	saveTransactions(); // 🔥 langsung simpan contoh ke localStorage
+	}
+  }
+	function saveTransactions() { // 🔥 fungsi baru
+	localStorage.setItem('tsca_transactions', JSON.stringify(transactions));
+	}
+	
+    const categories = {
+      income: ['Iuran', 'Donasi', 'Sponsor', 'Penjualan Merchandise', 'Lainnya'],
+      expense: ['Peralatan', 'Transportasi', 'Konsumsi', 'Akomodasi', 'Dokumentasi', 'Administrasi', 'Lainnya']
+    };
+
+    // ===== Utilities =====
+    function showAlert(message, type = 'success') {
+      const container = document.getElementById('alertContainer');
+      if (!container) return;
+      container.innerHTML = `<div class="alert ${type==='success'?'alert-success':'alert-error'}">${message}</div>`;
+      setTimeout(() => { container.innerHTML = ''; }, 2800);
+    }
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
+    }
+
+    // ===== Tabs =====
+	function showTab(tabName, ev) {
+	document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+	document.getElementById(tabName).classList.add('active');
+	document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+	if (ev && ev.target) ev.target.classList.add('active');
+	if (tabName === 'reports') updateReports();
+ }
+ 
+    // ===== Initialize =====
+	function initializeApp() {
+	loadTransactions(); // 🔥 load transaksi dari localStorage setiap login
+	const dateInput = document.getElementById('transactionDate');
+	if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+	document.getElementById('transactionType').addEventListener('change', updateCategories);
+	document.getElementById('monthFilter').addEventListener('change', updateAllDisplays);
+	updateCategories();
+	updateAllDisplays();
+	}
+
+    // ===== Categories =====
+    function updateCategories() {
+      const type = document.getElementById('transactionType').value;
+      const select = document.getElementById('transactionCategory');
+      select.innerHTML = '<option value="">Pilih Kategori</option>';
+      (categories[type] || []).forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat; opt.textContent = cat; select.appendChild(opt);
+      });
+    }
+
+    // ===== Filter & Summary =====
+    function getFilteredTransactions() {
+      const filter = document.getElementById('monthFilter').value;
+      if (filter === 'all') return transactions;
+      return transactions.filter(t => t.date.startsWith(filter));
+    }
+
+    function calculateSummary(list = null) {
+      const data = list || getFilteredTransactions();
+      const totalIncome = data.filter(t => t.type==='income').reduce((s,t)=>s+t.amount,0);
+      const totalExpense = data.filter(t => t.type==='expense').reduce((s,t)=>s+t.amount,0);
+      return { totalIncome, totalExpense, balance: totalIncome - totalExpense };
+    }
+
+    // ===== CRUD Transaction =====
+	function addTransaction() {
+	const date = document.getElementById('transactionDate').value;
+	const type = document.getElementById('transactionType').value;
+	const category = document.getElementById('transactionCategory').value;
+	const amount = parseInt(document.getElementById('transactionAmount').value, 10);
+	const description = document.getElementById('transactionDescription').value.trim();
+
+
+	if (!date || !category || !amount || amount <= 0 || !description) {
+	showAlert('Mohon lengkapi semua field dengan benar!', 'error');
+	return;
+	}
+
+
+	const newTransaction = { id: Date.now(), date, type, category, amount, description };
+	transactions.unshift(newTransaction);
+	saveTransactions(); // 🔥 simpan setelah tambah
+
+
+	document.getElementById('transactionAmount').value = '';
+	document.getElementById('transactionDescription').value = '';
+	document.getElementById('transactionCategory').value = '';
+
+
+	updateAllDisplays();
+	showAlert('Transaksi berhasil ditambahkan!');
+	}
+
+
+	function deleteTransaction(id) {
+	if (!confirm('Apakah Anda yakin ingin menghapus transaksi ini?')) return;
+	transactions = transactions.filter(t => t.id !== id);
+	saveTransactions(); // 🔥 simpan setelah hapus
+	updateAllDisplays();
+	showAlert('Transaksi berhasil dihapus!');
+	}
+
+    // ===== Update UI =====
+    function updateDashboard() {
+      const { totalIncome, totalExpense, balance } = calculateSummary();
+      document.getElementById('totalIncome').textContent = formatCurrency(totalIncome);
+      document.getElementById('totalExpense').textContent = formatCurrency(totalExpense);
+      document.getElementById('balanceAmount').textContent = formatCurrency(balance);
+      document.getElementById('currentBalance').textContent = formatCurrency(balance);
+
+      const balEl = document.getElementById('balanceAmount');
+      balEl.className = 'card-amount balance ' + (balance >= 0 ? 'positive' : 'negative');
+
+      const recent = getFilteredTransactions().slice(0,5);
+      const cont = document.getElementById('recentTransactions');
+      if (!recent.length) {
+        cont.innerHTML = '<p style="color:#6b7280; text-align:center; padding:1.25rem;">Belum ada transaksi</p>';
+      } else {
+        cont.innerHTML = recent.map(t => `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:.85rem 0; border-bottom:1px solid #e5e7eb;">
+            <div>
+              <div style="font-weight:800; margin-bottom:.2rem;">${t.description}</div>
+              <div style="font-size:.875rem; color:#6b7280;">${t.category} • ${new Date(t.date).toLocaleDateString('id-ID')}</div>
+            </div>
+            <div class="${t.type==='income'?'amount-positive':'amount-negative'}" style="font-weight:800;">
+              ${t.type==='income' ? '+' : '-'}${formatCurrency(t.amount)}
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function updateTransactionsList() {
+      const data = getFilteredTransactions();
+      const tbody = document.getElementById('transactionsList');
+      if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#6b7280; padding:1.25rem;">Belum ada transaksi</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = data.map(t => `
+        <tr>
+          <td>${new Date(t.date).toLocaleDateString('id-ID')}</td>
+          <td><span class="badge ${t.type==='income'?'badge-income':'badge-expense'}">${t.type==='income'?'Masuk':'Keluar'}</span></td>
+          <td>${t.category}</td>
+          <td>${t.description}</td>
+          <td style="text-align:right;" class="${t.type==='income'?'amount-positive':'amount-negative'}">${t.type==='income'?'+':'-'}${formatCurrency(t.amount)}</td>
+          <td style="text-align:center;"><button class="btn-danger" onclick="deleteTransaction(${t.id})">Hapus</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function updateReports() {
+      const data = getFilteredTransactions();
+      const { totalIncome, totalExpense, balance } = calculateSummary(data);
+      document.getElementById('reportIncome').textContent = formatCurrency(totalIncome);
+      document.getElementById('reportExpense').textContent = formatCurrency(totalExpense);
+      const rb = document.getElementById('reportBalance');
+      rb.textContent = formatCurrency(balance);
+      rb.style.color = balance >= 0 ? '#1e40af' : '#991b1b';
+
+      const incomeBy = {}; data.filter(t=>t.type==='income').forEach(t=>incomeBy[t.category]=(incomeBy[t.category]||0)+t.amount);
+      const expenseBy = {}; data.filter(t=>t.type==='expense').forEach(t=>expenseBy[t.category]=(expenseBy[t.category]||0)+t.amount);
+
+      const incomeEl = document.getElementById('incomeReport');
+      incomeEl.innerHTML = Object.keys(incomeBy).length ?
+        Object.entries(incomeBy).sort((a,b)=>b[1]-a[1]).map(([c,a])=>`<div class="category-item"><span>${c}</span><span style="font-weight:800; color:#059669;">${formatCurrency(a)}</span></div>`).join('') :
+        '<p style="color:#6b7280; text-align:center; padding:1rem;">Belum ada data</p>';
+
+      const expenseEl = document.getElementById('expenseReport');
+      expenseEl.innerHTML = Object.keys(expenseBy).length ?
+        Object.entries(expenseBy).sort((a,b)=>b[1]-a[1]).map(([c,a])=>`<div class="category-item"><span>${c}</span><span style="font-weight:800; color:#dc2626;">${formatCurrency(a)}</span></div>`).join('') :
+        '<p style="color:#6b7280; text-align:center; padding:1rem;">Belum ada data</p>';
+    }
+
+    function updateAllDisplays() {
+      updateDashboard();
+      updateTransactionsList();
+      updateReports();
+    }
+
+    // ===== Export & Print =====
+    function exportToCSV() {
+   
+      const csv = 'Tanggal,Tipe,Kategori,Keterangan,Jumlah\n' +
+        transactions.map(t => `${t.date},${t.type==='income'?'Pemasukan':'Pengeluaran'},${t.category},"${t.description}",${t.amount}`).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `keuangan_bendahara_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    }
+
+    function printReport() {
+     
+      const { totalIncome, totalExpense, balance } = calculateSummary();
+      const rows = getFilteredTransactions().map(t => `
+        <tr>
+          <td>${new Date(t.date).toLocaleDateString('id-ID')}</td>
+          <td>${t.type==='income'?'Pemasukan':'Pengeluaran'}</td>
+          <td>${t.category}</td>
+          <td>${t.description}</td>
+          <td style="text-align:right;">${formatCurrency(t.amount)}</td>
+        </tr>`).join('');
+
+      const w = window.open('', '_blank');
+      w.document.write(`<!DOCTYPE html><html><head><title>Laporan Keuangan Bendahara</title>
+        <style>
+          body{font-family:Arial, sans-serif; padding:24px;}
+          .header{text-align:center; margin-bottom:22px;}
+          .summary{display:flex; gap:12px; justify-content:space-around; margin:14px 0;}
+          .summary div{padding:12px 16px; border:1px solid #ddd; border-radius:8px; text-align:center; min-width:180px;}
+          table{width:100%; border-collapse:collapse; margin-top:14px;}
+          th,td{padding:10px; text-align:left; border-bottom:1px solid #eee;}
+          th{background:#f7f7f7;}
+          .positive{color:#059669;} .negative{color:#dc2626;}
+        </style></head><body>
+        <div class="header">
+          <h1>Laporan Keuangan Bendahara</h1>
+          <h2>TROPIS SULAWESI CINTA ALAM</h2>
+          <p>Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')}</p>
+        </div>
+        <div class="summary">
+          <div><h3>Total Pemasukan</h3><p class="positive">${formatCurrency(totalIncome)}</p></div>
+          <div><h3>Total Pengeluaran</h3><p class="negative">${formatCurrency(totalExpense)}</p></div>
+          <div><h3>Saldo</h3><p class="${balance>=0?'positive':'negative'}">${formatCurrency(balance)}</p></div>
+        </div>
+        <table><thead><tr><th>Tanggal</th><th>Tipe</th><th>Kategori</th><th>Keterangan</th><th>Jumlah</th></tr></thead>
+        <tbody>${rows}</tbody></table>
+      </body></html>`);
+      w.document.close();
+      w.focus();
+      w.print();
+    }
+  </script>
 </body>
-
 </html>
